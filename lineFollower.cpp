@@ -22,7 +22,7 @@ void LineFollower::calibrateSensors()
 
 void LineFollower::followSegment()
 {
-unsigned int sensors[5];
+    unsigned int sensors[5];
 
     while (true) {
         unsigned int position = lineSensors.readLineWhite(sensors);
@@ -30,21 +30,37 @@ unsigned int sensors[5];
         int derivative = proportional - lastProportional;
         integral += proportional;
         lastProportional = proportional;
-        int powerDifference = proportional / 20 + integral / 10000 + derivative * 3 / 2;
 
-        const int max = 60;
-        if (powerDifference > max) powerDifference = max;
-        if (powerDifference < -max) powerDifference = -max;
+        // Ajusta los valores de kp, ki y kd según sea necesario para mejorar la precisión
+        float kp = 0.1;
+        float ki = 0.0;
+        float kd = 0.015;
+
+        // Limitar la integral
+        const int integralLimit = 1000;
+        if (integral > integralLimit) integral = integralLimit;
+        if (integral < -integralLimit) integral = -integralLimit;
+
+        // Introducir un umbral muerto
+        const int deadband = 40;
+        if (abs(proportional) < deadband) proportional = 0;
+
+        int powerDifference = kp * proportional + ki * integral + kd * derivative;
+
+        const int maxSpeed = 170; // Velocidad máxima del motor
+        if (powerDifference > maxSpeed) powerDifference = maxSpeed;
+        if (powerDifference < -maxSpeed) powerDifference = -maxSpeed;
 
         if (powerDifference < 0)
-            motors.setSpeeds(max + powerDifference, max);
+            motors.setSpeeds(maxSpeed + powerDifference, maxSpeed);
         else
-            motors.setSpeeds(max, max - powerDifference);
+            motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
 
+        // Condiciones para salir del segmento y detectar intersecciones o curvas cerradas
         if (sensors[1] < 100 && sensors[2] < 100 && sensors[3] < 100) {
-            return;
+            return; // Línea perdida
         } else if (sensors[0] > 200 || sensors[4] > 200) {
-            return;
+            return; // Intersección o curva cerrada detectada
         }
     }
 }

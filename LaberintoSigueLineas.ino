@@ -1,5 +1,6 @@
 #include <Pololu3piPlus32U4.h>
 #include "LineFollower.h"
+#include "UI.h"
  
 using namespace Pololu3piPlus32U4;
  
@@ -14,15 +15,18 @@ Motors motors;
 Encoders encoders;
 int flag = 0;
 LineFollower lineFollower;
+UI ui;
 
 void setup() {
-
+ui.inicializarPantalla();
 }
 
 void loop() {
+  
   if (flag == 0){
+    ui.mostrarCalibrando();
     lineFollower.calibrateSensors();
     flag =1;
   }
-  lineFollower.followSegment();
+  ui.mostrarSensores();
 }
