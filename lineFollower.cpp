@@ -56,4 +56,15 @@ void LineFollower::followSegment()
         else
             motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
     }
+    if(sensors[1] < 300 && sensors[2] < 300 && sensors[3] < 300)
+        {
+            // There is no line visible ahead, and we didn't see any
+            // intersection.  Must be a dead end.
+            return;
+        }
+        else if(sensors[0] > 300 || sensors[4] > 300)
+        {
+            // Found an intersection.
+            return;
+        }
 }
