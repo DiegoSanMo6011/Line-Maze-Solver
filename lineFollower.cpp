@@ -25,7 +25,7 @@ void LineFollower::followSegment()
     unsigned int sensors[5];
 
     while (true) {
-        unsigned int position = lineSensors.readLineWhite(sensors);
+        unsigned int position = lineSensors.readLineBlack(sensors);
         int proportional = ((int)position) - 2000;
         int derivative = proportional - lastProportional;
         integral += proportional;
@@ -47,7 +47,7 @@ void LineFollower::followSegment()
 
         int powerDifference = kp * proportional + ki * integral + kd * derivative;
 
-        const int maxSpeed = 170; // Velocidad máxima del motor
+        const int maxSpeed = 60; // Velocidad máxima del motor
         if (powerDifference > maxSpeed) powerDifference = maxSpeed;
         if (powerDifference < -maxSpeed) powerDifference = -maxSpeed;
 
@@ -55,12 +55,5 @@ void LineFollower::followSegment()
             motors.setSpeeds(maxSpeed + powerDifference, maxSpeed);
         else
             motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
-
-        // Condiciones para salir del segmento y detectar intersecciones o curvas cerradas
-        if (sensors[1] < 100 && sensors[2] < 100 && sensors[3] < 100) {
-            return; // Línea perdida
-        } else if (sensors[0] > 200 || sensors[4] > 200) {
-            return; // Intersección o curva cerrada detectada
-        }
     }
 }
