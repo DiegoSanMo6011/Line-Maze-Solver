@@ -13,31 +13,40 @@ MazeSolver::MazeSolver() {}
 
 void MazeSolver::solveMaze()
 {
-    while (true) {
-        ui.mostrarSensores();
-        handleIntersection();
+  int flag = 0;
+    while (flag==0) {
         followSegment();
+        motors.setSpeeds(0, 0);
+        delay(150);
+        handleIntersection();
+        
+        flag= 1;
+        
     }
 }
 
 void MazeSolver::turnLeft()
 {
-    motors.setSpeeds(-60, 60);
-    delay(200); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(30, 30);
+    delay(500);
+    motors.setSpeeds(-30, 30);
+    delay(1000); // Ajustar el tiempo según sea necesario
     motors.setSpeeds(0, 0);
 }
 
 void MazeSolver::turnRight()
 {
-    motors.setSpeeds(60, -60);
-    delay(200); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(30, 30);
+    delay(500);
+    motors.setSpeeds(30, -30);
+    delay(1000); // Ajustar el tiempo según sea necesario
     motors.setSpeeds(0, 0);
 }
 
 void MazeSolver::turnAround()
 {
-    motors.setSpeeds(60, -60);
-    delay(400); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(30, -30);
+    delay(2000); // Ajustar el tiempo según sea necesario
     motors.setSpeeds(0, 0);
 }
 
@@ -52,18 +61,23 @@ void MazeSolver::handleIntersection()
     lineSensors.read(sensors);
 
     // Verificar si hay una intersección
-    bool left = sensors[0] > 500;
+    bool left = sensors[0]  > 500;
     bool right = sensors[4] > 500;
+    bool front = sensors[2] > 500;
 
     // Decidir el giro en la intersección
     if (left && right) {
-        turnLeft();
+        turnRight();
     } else if (left) {
         turnLeft();
     } else if (right) {
         turnRight();
-    } else {
+    } else if (front){
         // Si no hay intersección, gira alrededor
-        turnAround();
+        return;
+       
+    }
+    else{
+      turnAround();
     }
 }

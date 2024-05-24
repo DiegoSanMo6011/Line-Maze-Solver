@@ -1,8 +1,10 @@
 #include <Pololu3piPlus32U4.h>
 #include "LineFollower.h"
+#include "UI.h"
 
 extern Pololu3piPlus32U4::Motors motors;
 extern Pololu3piPlus32U4::LineSensors lineSensors;
+extern UI ui;
 
 LineFollower::LineFollower() : lastProportional(0), integral(0) {}
 
@@ -26,6 +28,7 @@ void LineFollower::followSegment()
 
     while (true) {
         unsigned int position = lineSensors.readLineBlack(sensors);
+        ui.mostrarSensores();
         int proportional = ((int)position) - 2000;
         int derivative = proportional - lastProportional;
         integral += proportional;
@@ -55,16 +58,15 @@ void LineFollower::followSegment()
             motors.setSpeeds(maxSpeed + powerDifference, maxSpeed);
         else
             motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
+        if(sensors[1] < 200 && sensors[2] < 200 && sensors[3] < 200)
+        {
+            return;
+        }
+        else if(sensors[0] > 200 || sensors[4] > 200)
+        {
+          //Found an intersection.
+          return;
+        }
     }
-    if(sensors[1] < 300 && sensors[2] < 300 && sensors[3] < 300)
-        {
-            // There is no line visible ahead, and we didn't see any
-            // intersection.  Must be a dead end.
-            return;
-        }
-        else if(sensors[0] > 300 || sensors[4] > 300)
-        {
-            // Found an intersection.
-            return;
-        }
+
 }
