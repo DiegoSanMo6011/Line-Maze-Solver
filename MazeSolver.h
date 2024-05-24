@@ -15,7 +15,6 @@ private:
     void followSegment();
     void handleIntersection();
 
-    // Añadir aquí cualquier otro método privado que necesites
 };
 
 #endif
