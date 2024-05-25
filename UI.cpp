@@ -38,7 +38,7 @@ void UI::mostrarSensores() {
   unsigned int sensorValues[5];
 
   // Leer los valores de los sensores de línea
-  lineSensors.readLineWhite(sensorValues);
+  lineSensors.read(sensorValues);
 
   // Mostrar los valores de los sensores en la pantalla OLED
   for (int i = 0; i < 5; i++) {
@@ -51,3 +51,4 @@ void UI::mostrarSensores() {
 
   display.display();
 }
+
