@@ -1,26 +1,20 @@
+// MazeSolver.h
 #ifndef MAZESOLVER_H
 #define MAZESOLVER_H
-
-#include "LineFollower.h"
 
 class MazeSolver
 {
 public:
     MazeSolver();
-    void solve();
-    void loopSolve();  // Function to be called from Arduino's loop()
+    void solveMaze();
 
 private:
-    void turn(char dir);
-    char selectTurn(unsigned char foundLeft, unsigned char foundStraight, unsigned char foundRight);
-    void reverse();
+    void turnLeft();
+    void turnRight();
+    void turnAround();
+    void followSegment();
+    void handleIntersection();
 
-    LineFollower lineFollower;
-    char path[100];
-    unsigned char pathLength;
-    bool solving;
-    int stepIndex;
-    bool reversing;
 };
 
 #endif

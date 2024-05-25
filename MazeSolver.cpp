@@ -1,132 +1,87 @@
+// MazeSolver.cpp
 #include <Pololu3piPlus32U4.h>
 #include "MazeSolver.h"
-
-using namespace Pololu3piPlus32U4;
+#include "LineFollower.h"
+#include "UI.h"
 
 extern Pololu3piPlus32U4::Motors motors;
 extern Pololu3piPlus32U4::LineSensors lineSensors;
+extern LineFollower lineFollower;
+extern UI ui;
 
-MazeSolver::MazeSolver() : pathLength(0), solving(true), stepIndex(0), reversing(false) {}
+MazeSolver::MazeSolver() {}
 
-void MazeSolver::turn(char dir)
+void MazeSolver::solveMaze()
 {
-    switch (dir)
-    {
-    case 'L':
-        motors.setSpeeds(-80, 80);
-        delay(200);
-        break;
-    case 'R':
-        motors.setSpeeds(80, -80);
-        delay(200);
-        break;
-    case 'B':
-        motors.setSpeeds(80, -80);
-        delay(400);
-        break;
-    case 'S':
-        break;
+  int flag = 0;
+    while (flag==0) {
+        followSegment();
+        //delay(20);
+        handleIntersection();
+        
+        flag= 1;   
     }
 }
 
-void MazeSolver::reverse()
+void MazeSolver::turnLeft()
 {
-    motors.setSpeeds(-50, -50);
-    delay(500);
-    reversing = true;
+    motors.setSpeeds(30, 30);
+    delay(200);
+    motors.setSpeeds(-60, 60);
+    delay(400); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(0, 0);
 }
 
-char MazeSolver::selectTurn(unsigned char foundLeft, unsigned char foundStraight, unsigned char foundRight)
+void MazeSolver::turnRight()
 {
-    if (foundLeft)
-        return 'L';
-    else if (foundStraight)
-        return 'S';
-    else if (foundRight)
-        return 'R';
-    else
-        return 'B';
+    motors.setSpeeds(30, 30);
+    delay(200);
+    motors.setSpeeds(60, -60);
+    delay(400); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(0, 0);
 }
 
-void MazeSolver::solve()
+void MazeSolver::turnAround()
 {
-    while (solving)
-    {
-        lineFollower.followSegment();
+    motors.setSpeeds(30, 30);
+    delay(200);
+    motors.setSpeeds(60, -60);
+    delay(700); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(0, 0);
+}
+
+void MazeSolver::followSegment()
+{
+    lineFollower.followSegment();
+}
+
+void MazeSolver::handleIntersection()
+{
+    unsigned int sensors[5];
+    lineSensors.read(sensors);
+
+    // Verificar si hay una intersección
+    bool left =  sensors[0]  > 800;
+    bool right = sensors[4]  > 800;
+    bool centerleft =  sensors[1]  > 800;
+    bool front = sensors[2]  > 800;
+    bool centerright =  sensors[3]  > 800;
+
+    // Decidir el giro en la intersección
+    if (left && right) {
+        turnRight();
+    }else if (left && right && front && centerleft && centerright){
+        motors.setSpeeds(0, 0);
+        delay(20000);
+    } else if (left && front){
         motors.setSpeeds(50, 50);
-        delay(50);
-
-        unsigned char foundLeft = 0;
-        unsigned char foundStraight = 0;
-        unsigned char foundRight = 0;
-        unsigned int sensors[5];
-
-        // Primera lectura para izquierda y derecha
-        lineSensors.readLineWhite(sensors);
-        if (sensors[0] < 100) foundLeft = 1;
-        if (sensors[4] < 100) foundRight = 1;
-
-        // Pequeño avance y segunda lectura para dirección recta
-        motors.setSpeeds(40, 40);
-        delay(200);
-        lineSensors.readLineWhite(sensors);
-        if (sensors[1] < 200 || sensors[2] < 200 || sensors[3] < 200) foundStraight = 1;
-
-        // Comprobación de intersección completa (meta)
-        if (sensors[1] < 600 && sensors[2] < 600 && sensors[3] < 600) {
-            solving = false;
-            break;
-        }
-
-        // Detectar punto muerto (todos sensores negros)
-        if (sensors[0] > 1000 && sensors[1] > 1000 && sensors[2] > 1000 && sensors[3] > 1000 && sensors[4] > 1000) {
-            reverse();
-            continue;
-        }
-
-        // Selección y ejecución del giro
-        char dir = selectTurn(foundLeft, foundStraight, foundRight);
-        turn(dir);
-
-        // Almacena el giro en el camino recorrido
-        path[pathLength] = dir;
-        pathLength++;
-    }
-}
-
-void MazeSolver::loopSolve()
-{
-    if (reversing) {
-        reversing = false;
-        // En caso de estar revirtiendo, descartamos la última dirección y elegimos otra
-        if (pathLength > 0) {
-            pathLength--;
-            char lastDir = path[pathLength];
-            // Basándonos en la prioridad, elegimos la siguiente opción
-            if (lastDir == 'L') {
-                // Intentar ir al frente o a la derecha
-                solve();
-            } else if (lastDir == 'S') {
-                // Intentar girar a la derecha
-                solve();
-            } else if (lastDir == 'R') {
-                // Intentar girar a la izquierda (se hace reversa)
-                solve();
-            }
-        }
-    } else if (solving) {
-        solve();
-    } else {
-        if (stepIndex < pathLength) {
-            lineFollower.followSegment();
-            motors.setSpeeds(50, 50);
-            delay(50);
-            motors.setSpeeds(40, 40);
-            delay(200);
-            turn(path[stepIndex]);
-            stepIndex++;
-        } else {
-            lineFollower.followSegment();
-        }
+        delay(100);
+    } else if (left) {
+        turnLeft();
+    } else if (right) {
+        turnRight();
+    } 
+    else{
+      turnAround();
     }
 }
