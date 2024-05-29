@@ -22,19 +22,18 @@ MazeSolver mazeSolver;
 
 void setup() {
     ui.inicializarPantalla();
+    ui.mostrarCalibrando();
+    lineFollower.calibrateSensors();
+    
 }
 
 void loop() {
-    if (flag == 0) {
-        ui.mostrarCalibrando();
-        lineFollower.calibrateSensors();
-        flag = 1;
-    }
-    flag == mazeSolver.solveMaze();
     if (flag == 0){
-      motors.setSpeeds(0, 0);
+      flag = mazeSolver.solveMaze();
+    } else if (flag == 1){
+      motors.setSpeeds(0,0);
       if (buttonB.getSingleDebouncedPress()){
-        mazeSolver.segundaVuelta();
+       mazeSolver.segundaVuelta();
       }
     }
 }
