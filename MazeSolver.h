@@ -6,15 +6,24 @@ class MazeSolver
 {
 public:
     MazeSolver();
-    void solveMaze();
+    int solveMaze();
+    void segundaVuelta();
+    int i = 0;
+    int j = 0;
+    char Recorrido[];
 
 private:
     void turnLeft();
     void turnRight();
     void turnAround();
     void followSegment();
-    void handleIntersection();
-
+    void followSegment2();
+    char handleIntersection();
+    char Simplificar();
+    void Reescribir();
+    void simplePath();
+    
+    
 };
 
 #endif

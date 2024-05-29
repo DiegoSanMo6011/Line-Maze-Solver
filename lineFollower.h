@@ -8,6 +8,7 @@ class LineFollower
 public:
     LineFollower();
     void followSegment();
+    void followSegment2();
     void calibrateSensors();
     
 private:
