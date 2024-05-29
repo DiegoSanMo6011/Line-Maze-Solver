@@ -58,6 +58,7 @@ void LineFollower::followSegment()
             motors.setSpeeds(maxSpeed + powerDifference, maxSpeed);
         else
             motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
+            
         if(sensors[1] > 200 && sensors[2] > 200 && sensors[3] > 200)
         {
             return;
@@ -77,7 +78,6 @@ void LineFollower::followSegment2()
 
     while (true) {
         unsigned int position = lineSensors.readLineWhite(sensors);
-        ui.mostrarSensores();
         int proportional = ((int)position) - 2000;
         int derivative = proportional - lastProportional;
         integral += proportional;
@@ -107,6 +107,7 @@ void LineFollower::followSegment2()
             motors.setSpeeds(maxSpeed + powerDifference, maxSpeed);
         else
             motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
+
         if(sensors[1] > 200 && sensors[2] > 200 && sensors[3] > 200)
         {
             return;

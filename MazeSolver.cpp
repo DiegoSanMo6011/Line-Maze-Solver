@@ -14,28 +14,50 @@ MazeSolver::MazeSolver() {}
 
 int MazeSolver::solveMaze()
 {
-  followSegment();
-  unsigned int sensors[5];
-  lineSensors.read(sensors);
+  bool detener = false;
+  while (detener == false){
+    unsigned int sensors[5];
+    followSegment();
+    
+    lineSensors.read(sensors);
 
-  // Verificar si hay una intersección
-  bool left =  sensors[0]  < 1200;
-  bool right = sensors[4]  < 1200;
-  bool centerleft =  sensors[1]  < 900;
-  bool front = sensors[2]  < 1000;
-  bool centerright =  sensors[3]  < 900;
-
-  // Decidir el giro en la intersección
-  if (left && right && front && centerleft && centerright){
-    motors.setSpeeds(0, 0);
-    return 0;
+    // Verificar si hay una intersección
+    bool left =  sensors[0]  < 900;
+    bool right = sensors[4]  < 900;
+    bool centerleft =  sensors[1]  < 900;
+    bool front = sensors[2]  < 900;
+    bool centerright =  sensors[3]  < 900;
+    instru = handleIntersection(); 
+    guardarinstru();
+    // SI llega al final
+    if (left && right && front && centerleft && centerright){
+      detener = true;
+    }
+    
+    
   }
-  Recorrido[i] = handleIntersection();   
-  i++;
+  return 1;
 }
 
-
-
+void MazeSolver::guardarinstru()
+{
+    if (instru == 'R'){
+      Recorrido[i] = instru;
+      i++;
+    }else if (instru == 'L'){
+      Recorrido[i] = instru;
+      i++;
+    }else if (instru == 'S'){
+      Recorrido[i] = instru;
+      i++;
+    }
+    else if (instru == 'U'){
+      Recorrido[i] = instru;
+      i++;
+    }else{
+      return;
+    }
+}
 
 void MazeSolver::turnLeft()
 {
@@ -86,24 +108,31 @@ char MazeSolver::handleIntersection()
     bool front = sensors[2]  < 1000;
     bool centerright =  sensors[3]  < 900;
 
-    // Decidir el giro en la intersección
+    
     if (left && right && front && centerleft && centerright){
-        motors.setSpeeds(0, 0);
-  
-    }
-    else if (left && right) {
+      motors.setSpeeds(30, 30);
+      return 'A';
+    }else if (left && right) {
         turnRight();
         return 'R';
-    }  else if (left && front){
+    }else if (left && front){
         motors.setSpeeds(30, 30);
         delay(100);
         return 'S';
-    } else if (left) {
-        turnLeft();
-    } else if (right) {
+    }else if (right && front){
         turnRight();
+        return 'R';
+    }else if (right && left && front) {
+        turnRight();
+        return 'R';
+    }else if (left) {
+        turnLeft();
+        return 'A';
+    }else if (right) {
+        turnRight();
+        return 'A';
     } 
-    else{
+    else {
       turnAround();
       return 'U';
     }
@@ -112,6 +141,7 @@ char MazeSolver::handleIntersection()
 
 char MazeSolver::Simplificar(){
   int length = strlen(Recorrido);
+ 
   for (j = 0; j < length; j++){
     if (Recorrido[j]=='U'){
       char Antes = Recorrido[j-1];
@@ -134,17 +164,21 @@ char MazeSolver::Simplificar(){
 
 void MazeSolver::Reescribir(){
   int length = strlen(Recorrido);
+ 
   char RecTemp[length-2];
-  for (j = 0; j < length; j++){
-      if (Recorrido[j]=='U'){
-        break;
-      }
+  
+  for   (int r=0; r < length; r++){
+    if (Recorrido[r] == 'U'){
+      j = r;
+      break;
+    }
   }
-  int k;
-  for ( k = 0; k < j - 1; k++){
+  
+  
+  RecTemp[j] = Simplificar();
+  for ( int k = 0; k < j - 1; k++){
         RecTemp[k] = Recorrido[k];
   }
-  RecTemp[k] = Simplificar();
   for (int l = j ; l < length - 2 ; l++){
         RecTemp[l] = Recorrido[l+2];
   }
@@ -152,6 +186,7 @@ void MazeSolver::Reescribir(){
   for (int p = 0 ; p < templength; p++){
         Recorrido[p] = RecTemp[p] ;
   }
+  
   return;
 }
 
@@ -159,10 +194,28 @@ void  MazeSolver::simplePath(){
 
   int flag=1;
   while (flag==1)
-  {
+  { 
     int length = strlen(Recorrido);
-    for (j = 0; j < length; j++){
+     display.noAutoDisplay();
+  display.clear();
+  display.gotoXY(0, 0);
+  display.print(length);
+  display.display();
+  delay(500);
+  for ( j = 0; j < length; j++){
+    display.noAutoDisplay();
+    display.clear();
+    display.gotoXY(0, 0);
+    display.print(Recorrido[j]);
+    display.display();
+    delay(500);
+  }
+    
+    
+   
+    for ( j = 0; j < length; j++){
       if (Recorrido[j]=='U'){
+
         Reescribir();
         flag=1;
       }
@@ -176,24 +229,36 @@ void  MazeSolver::simplePath(){
 
 
 void MazeSolver::segundaVuelta(){
-    simplePath();
-
-   int lenght = strlen(Recorrido);
-   for (int f=0;f<lenght;f++){
+  
+  simplePath();
+  /*
+  int lenght = strlen(Recorrido);
+  for (int f=0;f<lenght;f++){
+    display.noAutoDisplay();
+    display.clear();
+    display.gotoXY(0, 0);
+    display.print(Recorrido[f]);
+    display.display();
+    delay(500);
+  }
+  
+  lenght = strlen(Recorrido);
+  for (int f=0;f<lenght;f++){
     followSegment2();
-    if (Recorrido [i] == 'S') {
+    if (Recorrido [f] == 'S') {
       motors.setSpeeds(30, 30);
-        delay(100);  
+      delay(100);  
 
-    } else if (Recorrido[i] == 'L') {
+    } else if (Recorrido[f] == 'L') {
       turnLeft();
 
-    }else if (Recorrido[i] == 'R') {
+    }else if (Recorrido[f] == 'R') {
       turnRight();
     }
   }
     motors.setSpeeds(0, 0);
 
-    return ;
+    return ;*/
+  
 }
 

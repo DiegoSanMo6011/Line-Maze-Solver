@@ -10,7 +10,8 @@ public:
     void segundaVuelta();
     int i = 0;
     int j = 0;
-    char Recorrido[];
+    char instru;
+    char Recorrido[50];
 
 private:
     void turnLeft();
@@ -22,7 +23,7 @@ private:
     char Simplificar();
     void Reescribir();
     void simplePath();
-    
+    void guardarinstru();
     
 };
 
