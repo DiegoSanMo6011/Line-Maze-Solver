@@ -105,7 +105,7 @@ char MazeSolver::handleIntersection()
     bool left =  sensors[0]  < 1200;
     bool right = sensors[4]  < 1200;
     bool centerleft =  sensors[1]  < 900;
-    bool front = sensors[2]  < 1000;
+    bool front = sensors[2]  < 850;
     bool centerright =  sensors[3]  < 900;
 
     
@@ -208,7 +208,13 @@ void  MazeSolver::simplePath(){
     display.gotoXY(0, 0);
     display.print(Recorrido[j]);
     display.display();
-    delay(500);
+    delay(1000);
+    display.noAutoDisplay();
+    display.clear();
+    display.gotoXY(0, 0);
+    display.print(j);
+    display.display();
+    delay(1000);
   }
     
     
