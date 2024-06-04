@@ -105,7 +105,7 @@ char MazeSolver::handleIntersection()
     bool left =  sensors[0]  < 1200;
     bool right = sensors[4]  < 1200;
     bool centerleft =  sensors[1]  < 900;
-    bool front = sensors[2]  < 850;
+    bool front = sensors[2]  < 885;
     bool centerright =  sensors[3]  < 900;
 
     
@@ -164,29 +164,39 @@ char MazeSolver::Simplificar(){
 
 void MazeSolver::Reescribir(){
   int length = strlen(Recorrido);
- 
-  char RecTemp[length-2];
+
+   
   
   for   (int r=0; r < length; r++){
+    
     if (Recorrido[r] == 'U'){
       j = r;
       break;
     }
   }
+
+
+  RecTemp[j-1] = Simplificar();
+
   
-  
-  RecTemp[j] = Simplificar();
+
   for ( int k = 0; k < j - 1; k++){
         RecTemp[k] = Recorrido[k];
+      
   }
+  
+  
   for (int l = j ; l < length - 2 ; l++){
         RecTemp[l] = Recorrido[l+2];
+  }
+
+  for (int p = 0 ; p < length; p++){
+        Recorrido[p] = 0;
   }
   int templength = strlen(RecTemp);
   for (int p = 0 ; p < templength; p++){
         Recorrido[p] = RecTemp[p] ;
   }
-  
   return;
 }
 
@@ -196,28 +206,6 @@ void  MazeSolver::simplePath(){
   while (flag==1)
   { 
     int length = strlen(Recorrido);
-     display.noAutoDisplay();
-  display.clear();
-  display.gotoXY(0, 0);
-  display.print(length);
-  display.display();
-  delay(500);
-  for ( j = 0; j < length; j++){
-    display.noAutoDisplay();
-    display.clear();
-    display.gotoXY(0, 0);
-    display.print(Recorrido[j]);
-    display.display();
-    delay(1000);
-    display.noAutoDisplay();
-    display.clear();
-    display.gotoXY(0, 0);
-    display.print(j);
-    display.display();
-    delay(1000);
-  }
-    
-    
    
     for ( j = 0; j < length; j++){
       if (Recorrido[j]=='U'){
@@ -237,18 +225,8 @@ void  MazeSolver::simplePath(){
 void MazeSolver::segundaVuelta(){
   
   simplePath();
-  /*
-  int lenght = strlen(Recorrido);
-  for (int f=0;f<lenght;f++){
-    display.noAutoDisplay();
-    display.clear();
-    display.gotoXY(0, 0);
-    display.print(Recorrido[f]);
-    display.display();
-    delay(500);
-  }
   
-  lenght = strlen(Recorrido);
+  int lenght = strlen(Recorrido);
   for (int f=0;f<lenght;f++){
     followSegment2();
     if (Recorrido [f] == 'S') {
@@ -262,9 +240,10 @@ void MazeSolver::segundaVuelta(){
       turnRight();
     }
   }
-    motors.setSpeeds(0, 0);
+  followSegment2();
+  motors.setSpeeds(0, 0);
 
-    return ;*/
+    return ;
   
 }
 

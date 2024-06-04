@@ -12,6 +12,7 @@ public:
     int j = 0;
     char instru;
     char Recorrido[50];
+    char RecTemp[50];
 
 private:
     void turnLeft();
