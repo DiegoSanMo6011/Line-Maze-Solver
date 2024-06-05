@@ -118,10 +118,10 @@ void LineFollower::followSegment2()
         {
           return;
         }
-        else if (sensors[0] < 200 && sensors[2] < 100){  //iz & enfrente
+        else if (sensors[0] < 200 && sensors[2] < 30){  //iz & enfrente
           return;
         }
-        else if (sensors[4] < 200 && sensors[2] < 100){ // derecha & enfrente
+        else if (sensors[4] < 200 && sensors[2] < 30){ // derecha & enfrente
           return;
         }
 

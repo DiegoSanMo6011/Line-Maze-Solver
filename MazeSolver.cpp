@@ -223,11 +223,52 @@ void  MazeSolver::simplePath(){
 
 
 void MazeSolver::segundaVuelta(){
-  
+   int length = strlen(Recorrido);
+  display.noAutoDisplay();
+    display.clear();
+    display.gotoXY(0, 0);
+    display.print(length);
+    display.display();
+    delay(500);
+    for ( j = 0; j < length; j++){
+      display.noAutoDisplay();
+      display.clear();
+      display.gotoXY(0, 0);
+      display.print(Recorrido[j]);
+      display.display();
+      delay(1000);
+      display.noAutoDisplay();
+      display.clear();
+      display.gotoXY(0, 0);
+      display.print(j);
+      display.display();
+      delay(1000);
+    }
+
   simplePath();
   
-  int lenght = strlen(Recorrido);
-  for (int f=0;f<lenght;f++){
+   length = strlen(Recorrido);
+  display.noAutoDisplay();
+    display.clear();
+    display.gotoXY(0, 0);
+    display.print(length);
+    display.display();
+    delay(500);
+    for ( j = 0; j < length; j++){
+      display.noAutoDisplay();
+      display.clear();
+      display.gotoXY(0, 0);
+      display.print(Recorrido[j]);
+      display.display();
+      delay(1000);
+      display.noAutoDisplay();
+      display.clear();
+      display.gotoXY(0, 0);
+      display.print(j);
+      display.display();
+      delay(1000);
+    }
+  for (int f=0;f<length;f++){
     followSegment2();
     if (Recorrido [f] == 'S') {
       motors.setSpeeds(30, 30);
