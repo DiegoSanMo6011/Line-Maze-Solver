@@ -33,6 +33,7 @@ void loop() {
     } else if (flag == 1){
       motors.setSpeeds(0,0);
       if (buttonB.getSingleDebouncedPress()){
+        
        mazeSolver.segundaVuelta();
       }
     }

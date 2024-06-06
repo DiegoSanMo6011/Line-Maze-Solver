@@ -108,24 +108,26 @@ void LineFollower::followSegment2()
         else
             motors.setSpeeds(maxSpeed, maxSpeed - powerDifference);
 
-        if(sensors[0] < 200 && sensors[2] < 200 && sensors[4] < 200)//todos
+        if((sensors[0] < 200) && (sensors[2] < 200) && (sensors[4] < 200))//todos
         {
             return;
 
         }
         
-        else if(sensors[0] < 200 && sensors[4] < 200)//Izq & Derecha
+        else if((sensors[0] < 200) && (sensors[4] < 200))//Izq & Derecha
         {
           return;
         }
-        else if (sensors[0] < 200 && sensors[2] < 30){  //iz & enfrente
+        else if ((sensors[0] < 200) && (sensors[2] < 10)){  //iz & enfrente
           return;
         }
-        else if (sensors[4] < 200 && sensors[2] < 30){ // derecha & enfrente
+        else if ((sensors[4] < 200) && (sensors[2] < 10)){ // derecha & enfrente
           return;
         }
 
         else if (sensors[4]< 200){
+          motors.setSpeeds(0, 0);
+          delay(120);
           motors.setSpeeds(30, 30);
           delay(120);
           motors.setSpeeds(60, -60);
@@ -137,7 +139,8 @@ void LineFollower::followSegment2()
         
         
         else if (sensors[0] < 200 ){
-
+          motors.setSpeeds(0, 0);
+          delay(120);
           motors.setSpeeds(30, 30);
           delay(120);
           motors.setSpeeds(-60, 60);
@@ -145,7 +148,7 @@ void LineFollower::followSegment2()
           motors.setSpeeds(0, 0);
 
         }
-        else if(sensors[0] < 200 && sensors[2] < 200 && sensors[4] < 200 && sensors[3] < 200 && sensors[1] < 200)//todos
+        else if((sensors[0] < 200) && (sensors[2] < 200) && (sensors[4] < 200) && (sensors[3] < 200) && (sensors[1] < 200))//todos
         {
             return;
         }

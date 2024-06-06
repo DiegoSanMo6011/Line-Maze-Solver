@@ -248,7 +248,7 @@ void MazeSolver::segundaVuelta(){
   simplePath();
   
    length = strlen(Recorrido);
-  display.noAutoDisplay();
+     display.noAutoDisplay();
     display.clear();
     display.gotoXY(0, 0);
     display.print(length);
@@ -270,6 +270,9 @@ void MazeSolver::segundaVuelta(){
     }
   for (int f=0;f<length;f++){
     followSegment2();
+    motors.setSpeeds(0, 0);
+    ui.mostrarSensores();
+    delay(2000);
     if (Recorrido [f] == 'S') {
       motors.setSpeeds(30, 30);
       delay(100);  
