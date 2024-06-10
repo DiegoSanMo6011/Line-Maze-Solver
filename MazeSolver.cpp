@@ -1,93 +1,234 @@
+// MazeSolver.cpp
 #include <Pololu3piPlus32U4.h>
 #include "MazeSolver.h"
 #include "LineFollower.h"
 #include "UI.h"
 
-// Declaración de objetos externos para motores, sensores de línea, seguidor de líneas y UI
 extern Pololu3piPlus32U4::Motors motors;
 extern Pololu3piPlus32U4::LineSensors lineSensors;
 extern LineFollower lineFollower;
+extern Pololu3piPlus32U4::OLED display;
 extern UI ui;
 
-// Constructor de la clase MazeSolver
 MazeSolver::MazeSolver() {}
 
-// Función principal para resolver el laberinto
-void MazeSolver::solveMaze()
+int MazeSolver::solveMaze()
 {
-    int flag = 0; // Bandera para controlar el bucle
-    while (flag == 0) {
-        followSegment();      // Sigue un segmento de la línea
-        handleIntersection(); // Maneja las intersecciones encontradas
+  bool detener = false;
+  while (detener == false){
+    unsigned int sensors[5];
+    followSegment();
+    
+    lineSensors.read(sensors);
 
-        flag = 1; // Se establece la bandera para salir del bucle
+    // Verificar si hay una intersección
+    bool left =  sensors[0]  < 900;
+    bool right = sensors[4]  < 900;
+    bool centerleft =  sensors[1]  < 900;
+    bool front = sensors[2]  < 900;
+    bool centerright =  sensors[3]  < 900;
+    instru = handleIntersection(); 
+    guardarinstru();
+    // SI llega al final
+    if (left && right && front && centerleft && centerright){
+      detener = true;
+    }
+    
+    
+  }
+  return 1;
+}
+
+void MazeSolver::guardarinstru()
+{
+    if (instru == 'R'){
+      Recorrido[i] = instru;
+      i++;
+    }else if (instru == 'L'){
+      Recorrido[i] = instru;
+      i++;
+    }else if (instru == 'S'){
+      Recorrido[i] = instru;
+      i++;
+    }
+    else if (instru == 'U'){
+      Recorrido[i] = instru;
+      i++;
+    }else{
+      return;
     }
 }
 
-// Función para girar a la izquierda
 void MazeSolver::turnLeft()
 {
-    motors.setSpeeds(30, 30);  // Avanza lentamente
-    delay(120);                // Espera un corto período
-    motors.setSpeeds(-60, 60); // Gira a la izquierda
-    delay(300);                // Espera a que complete el giro
-    motors.setSpeeds(0, 0);    // Detiene los motores
+    motors.setSpeeds(30, 30);
+    delay(120);
+    motors.setSpeeds(-60, 60);
+    delay(300); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(0, 0);
 }
 
-// Función para girar a la derecha
 void MazeSolver::turnRight()
 {
-    motors.setSpeeds(30, 30);  // Avanza lentamente
-    delay(120);                // Espera un corto período
-    motors.setSpeeds(60, -60); // Gira a la derecha
-    delay(300);                // Espera a que complete el giro
-    motors.setSpeeds(0, 0);    // Detiene los motores
+    motors.setSpeeds(30, 30);
+    delay(120);
+    motors.setSpeeds(60, -60);
+    delay(300); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(0, 0);
 }
 
-// Función para dar media vuelta
 void MazeSolver::turnAround()
 {
-    motors.setSpeeds(30, 30);  // Avanza lentamente
-    delay(120);                // Espera un corto período
-    motors.setSpeeds(60, -60); // Gira 180 grados
-    delay(700);                // Espera a que complete el giro
-    motors.setSpeeds(0, 0);    // Detiene los motores
+    motors.setSpeeds(30, 30);
+    delay(120);
+    motors.setSpeeds(60, -60);
+    delay(700); // Ajustar el tiempo según sea necesario
+    motors.setSpeeds(0, 0);
 }
 
-// Función para seguir un segmento de la línea
 void MazeSolver::followSegment()
 {
-    lineFollower.followSegment(); // Usa el seguidor de líneas para seguir el segmento
+    lineFollower.followSegment();
 }
 
-// Función para manejar las intersecciones en el laberinto
-void MazeSolver::handleIntersection()
+void MazeSolver::followSegment2()
 {
-    unsigned int sensors[5]; // Array para almacenar las lecturas de los sensores de línea
-    lineSensors.read(sensors); // Lee los valores de los sensores
+    lineFollower.followSegment2();
+}
 
-    // Determina la presencia de línea en cada sensor
-    bool left = sensors[0] < 1200;
-    bool right = sensors[4] < 1200;
-    bool centerleft = sensors[1] < 1200;
-    bool front = sensors[2] < 1000;
-    bool centerright = sensors[3] < 1200;
+char MazeSolver::handleIntersection()
+{
+    unsigned int sensors[5];
+    lineSensors.read(sensors);
 
-    // Decide el giro en la intersección basado en los sensores
-    if (left && right) {
-        turnRight(); // Gira a la derecha si hay línea a ambos lados
-    } else if (left && right && front && centerleft && centerright) {
-        motors.setSpeeds(0, 0); // Detiene el robot si todos los sensores detectan línea
-        delay(20000);           // Espera un largo período
-    } else if (left && front) {
-        motors.setSpeeds(30, 30); // Avanza si hay línea a la izquierda y al frente
+    // Verificar si hay una intersección
+    bool left =  sensors[0]  < 1200;
+    bool right = sensors[4]  < 1200;
+    bool centerleft =  sensors[1]  < 900;
+    bool front = sensors[2]  < 885;
+    bool centerright =  sensors[3]  < 900;
+
+    
+    if (left && right && front && centerleft && centerright){
+      motors.setSpeeds(30, 30);
+      return 'A';
+    }else if (left && right) {
+        turnRight();
+        return 'R';
+    }else if (left && front){
+        motors.setSpeeds(30, 30);
         delay(100);
-    } else if (left) {
-        turnLeft(); // Gira a la izquierda si solo hay línea a la izquierda
-    } else if (right) {
-        turnRight(); // Gira a la derecha si solo hay línea a la derecha
-    } else {
-        turnAround(); // Da media vuelta si no hay línea a los lados
+        return 'S';
+    }else if (right && front){
+        turnRight();
+        return 'R';
+    }else if (right && left && front) {
+        turnRight();
+        return 'R';
+    }else if (left) {
+        turnLeft();
+        return 'A';
+    }else if (right) {
+        turnRight();
+        return 'A';
+    } 
+    else {
+      turnAround();
+      return 'U';
     }
+}
+
+
+char MazeSolver::Simplificar() {
+    int length = strlen(Recorrido);
+
+    for (int j = 0; j < length; j++) {
+        if (Recorrido[j] == 'U') {
+            char Antes = Recorrido[j - 1];
+            char Despues = Recorrido[j + 1];
+            if ((Antes == 'R') && (Despues == 'R')) {
+                return 'S';
+            } else if ((Antes == 'R') && (Despues == 'S')) {
+                return 'L';
+            } else if ((Antes == 'L') && (Despues == 'R')) {
+                return 'U';
+            } else if ((Antes == 'S') && (Despues == 'R')) {
+                return 'L';
+            } else if ((Antes == 'S') && (Despues == 'S')) {
+                return 'U';
+            }
+        }
+    }
+    return '\0'; // Retornar carácter nulo si no se encuentra 'U'
+}
+
+void  MazeSolver::Reescribir() {
+    int length = strlen(Recorrido);
+    int j;
+
+    for (int r = 0; r < length; r++) {
+        if (Recorrido[r] == 'U') {
+            j = r;
+            break;
+        }
+    }
+
+    RecTemp[j - 1] = Simplificar();
+
+    for (int k = 0; k < j - 1; k++) {
+        RecTemp[k] = Recorrido[k];
+    }
+
+    for (int l = j + 1; l < length; l++) {
+        RecTemp[l - 1] = Recorrido[l + 1];
+    }
+
+    RecTemp[length - 2] = '\0'; // Asegurar el fin de cadena
+
+    strcpy(Recorrido, RecTemp);
+}
+
+void  MazeSolver::simplePath() {
+    bool flag = true;
+    while (flag) {
+        flag = false;
+        int length = strlen(Recorrido);
+
+        for (int j = 0; j < length; j++) {
+            if (Recorrido[j] == 'U') {
+                Reescribir();
+                flag = true;
+                break;
+            }
+        }
+    }
+}
+
+
+void MazeSolver::segundaVuelta(){
+
+
+  simplePath();
+  
+  int length = strlen(Recorrido);
+    
+  for (int f=0;f<length;f++){
+    followSegment2();
+    if (Recorrido [f] == 'S') {
+      motors.setSpeeds(30, 30);
+      delay(100);  
+
+    } else if (Recorrido[f] == 'L') {
+      turnLeft();
+
+    }else if (Recorrido[f] == 'R') {
+      turnRight();
+    }
+  }
+  followSegment2();
+  motors.setSpeeds(0, 0);
+
+  return ;
+  
 }
 
